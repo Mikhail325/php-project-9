@@ -11,13 +11,13 @@
 <body class="min-vh-100 d-flex flex-column">
    <header>
       <nav class="navbar navbar-expand-md navbar-dark bg-dark px-3">
-         <a class="navbar-brand" href="#">Анализатор страниц</a>
+         <a class="navbar-brand" href="/">Анализатор страниц</a>
          <ul class="navbar-nav mr-auto">
             <li class="nav-item active">
-               <a class="nav-link active" href="#">Главное</a>
+               <a class="nav-link active" href="/">Главное</a>
             </li>
             <li class="nav-item">
-               <a class="nav-link" href="#">Сайт</a>
+               <a class="nav-link" href="/urls">Сайты</a>
             </li>
          </ul>
       </nav>
@@ -27,15 +27,19 @@
          <div class="row">
             <div class="col-12 col-md-10 col-lg-8 mx-auto border rounded-3 bg-light p-5">
                <h1 class="display-3">Анализатор страниц</h1>
-            <p class="lead">Бесплатно проверяйте сайты на SEO пригодность</p>
-            <form class="row">
-               <div class="col-8">
-                  <input type="text" class="form-control form-control-lg" placeholder="https://www.example.com">
-               </div>
-               <div class="col-2">
-                  <input type="submit" class="btn btn-primary btn-lg ms-3 px-5 text-uppercase mx-3" value="Проверить">
-               </div>
-            </form>
+               <p class="lead">Бесплатно проверяйте сайты на SEO пригодность</p>
+               <form action="/urls" method="post" class="row">
+                  <div class="col-8">
+                     <?php if ($errors === true): ?>
+                        <input type="text" name="urls[name]" class="form-control form-control-lg is-invalid" placeholder="https://www.example.com">
+                        <div class="invalid-feedback">Некорректный URL</div>
+                     <?php else: ?>
+                        <input type="text" name="urls[name]" class="form-control form-control-lg" placeholder="https://www.example.com">
+                     <?php endif ?>
+                  </div>
+                  <div class="col-2">
+                     <input type="submit" class="btn btn-primary btn-lg ms-3 px-5 text-uppercase mx-3" value="Проверить">
+               </form>
             </div>
          </div>
       </div>
