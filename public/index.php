@@ -61,7 +61,7 @@ $app->post('/urls', function($req ,$res) use ($router, $tableCreator, $dataTime)
             $tableCreator->insertUrl($urlName, $dataTime);
         }
         $id = $tableCreator->getId($urlName);
-        $url = $router->urlFor('urls', ['id'=> $id]);
+        $url = $router->urlFor('url', ['id'=> $id]);
         return $res->withRedirect($url);
     }
     $params = [
@@ -77,18 +77,28 @@ $app->get('/urls', function ($req, $res) use ($tableCreator) {
         'urls' => $urls
     ];
     return $this->get('renderer')->render($res, 'urls.phtml', $params);
-});
+})->setName('urls');
 
 $app->get('/urls/{id}', function ($req, $res, array $args) use ($tableCreator){
     $id = $args['id'];
     $url = $tableCreator->selectUrl($id);
+    $dataChecks = $tableCreator->selectChecUrl($id);
 
     $messages = $this->get('flash')->getMessages();
     $params = [
         'url' => $url,
-        'flash' => $messages
+        'flash' => $messages,
+        'checks' => $dataChecks
     ];
     return $this->get('renderer')->render($res, 'url.phtml', $params);
-})->setName('urls');
+})->setName('url');
+
+$app->post('/urls/{url_id}/checks', function ($req, $res, array $args) use ($tableCreator, $dataTime, $router) {
+    $id = $args['url_id'];
+    $tableCreator->insertChecUrl($id, $dataTime);
+
+    $url = $router->urlFor('url', ['id'=> $id]);
+    return $res->withRedirect($url);
+})->setName('ChecUrl');
 
 $app->run();

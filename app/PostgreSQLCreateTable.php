@@ -20,12 +20,20 @@ class PostgreSQLCreateTable
             id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
             name varchar(255),
             created_at timestamp
+            );
+            CREATE TABLE url_checks (
+            id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+            url_id bigint REFERENCES urls (id),
+            status_code int,
+            h1 varchar(255),
+            title varchar(255),
+            description varchar(255),
+            created_at timestamp
             );';
 
         $this->pdo->exec($sql);
         return $this;
     }
-
     function tableExists($table) {
 
         try {
@@ -74,7 +82,23 @@ class PostgreSQLCreateTable
     }
 
     public function selectUrls() {
-        $sql = "SELECT * FROM urls ORDER BY created_at DESC";
+        $sql = "SELECT urls.name, urls.id, MAX(url_checks.created_at) AS created_at
+        FROM urls LEFT JOIN url_checks ON urls.id = url_checks.url_id
+        GROUP BY (urls.name, urls.id);";
         return $this->pdo->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
     }
+
+    public function insertChecUrl($url_id, $created_at) {
+        $sql = "INSERT INTO url_checks (url_id, created_at) VALUES (:url_id, :created_at)";
+        $sqlReqvest = $this->pdo->prepare($sql);
+        $sqlReqvest->bindValue(':url_id', $url_id);
+        $sqlReqvest->bindValue(':created_at', $created_at);
+        $sqlReqvest->execute();
+    }
+
+    public function selectChecUrl($id) {
+        $sql = "SELECT * FROM url_checks WHERE url_id = {$id};";
+        return $this->pdo->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
 }
