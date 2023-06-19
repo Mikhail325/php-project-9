@@ -2,9 +2,8 @@
 
 namespace PostgreSQL;
 
-/**
- * Создание в PostgreSQL таблицы из демонстрации PHP
- */
+use DiDom\Document;
+
 class PostgreSQLCreateTable
 {
     private $pdo;
@@ -89,12 +88,21 @@ class PostgreSQLCreateTable
     }
 
     public function insertChecUrl($url_id, $resUrl, $created_at) {
-        $sql = "INSERT INTO url_checks (url_id, status_code, created_at) 
-            VALUES (:url_id, :status_code, :created_at)";
+        $sql = "INSERT INTO url_checks (url_id, status_code, h1, title, description, created_at) 
+            VALUES (:url_id, :status_code, :h1, :title, :description, :created_at)";
         $sqlReqvest = $this->pdo->prepare($sql);
 
         $code = $resUrl->getStatusCode();
+        $body = $resUrl->getBody()->getContents();;
 
+        $document = new Document($body);
+        $h1 = $document->has('h1') ? $document->find('h1')[0]->text() : null;
+        $title = $document->has('title') ? $document->find('title')[0]->text() : null;
+        $description = $document->has('meta[name=description]') ? $document->find('meta[name=description]')[0]->attr('content') : null;
+
+        $sqlReqvest->bindValue(':description', $description);
+        $sqlReqvest->bindValue(':title', $title);
+        $sqlReqvest->bindValue(':h1', $h1);
         $sqlReqvest->bindValue(':url_id', $url_id);
         $sqlReqvest->bindValue(':status_code', $code);
         $sqlReqvest->bindValue(':created_at', $created_at);
@@ -102,7 +110,8 @@ class PostgreSQLCreateTable
     }
 
     public function selectChecUrl($id) {
-        $sql = "SELECT * FROM url_checks WHERE url_id = {$id};";
+        $sql = "SELECT * FROM url_checks WHERE url_id = {$id}
+            ORDER BY url_checks.id DESC;";
         return $this->pdo->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
     }
 

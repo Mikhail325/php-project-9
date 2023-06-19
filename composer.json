@@ -27,7 +27,8 @@
         "php-di/php-di": "^7.0",
         "vlucas/valitron": "^1.4",
         "nesbot/carbon": "^2.67",
-        "guzzlehttp/guzzle": "^7.0"
+        "guzzlehttp/guzzle": "^7.0",
+        "imangazaliev/didom": "^2.0"
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "^3.7"
