@@ -82,16 +82,21 @@ class PostgreSQLCreateTable
     }
 
     public function selectUrls() {
-        $sql = "SELECT urls.name, urls.id, MAX(url_checks.created_at) AS created_at
+        $sql = "SELECT urls.name, urls.id, MAX(url_checks.created_at) AS created_at, url_checks.status_code 
         FROM urls LEFT JOIN url_checks ON urls.id = url_checks.url_id
-        GROUP BY (urls.name, urls.id);";
+        GROUP BY (urls.name, urls.id, url_checks.status_code);";
         return $this->pdo->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
     }
 
-    public function insertChecUrl($url_id, $created_at) {
-        $sql = "INSERT INTO url_checks (url_id, created_at) VALUES (:url_id, :created_at)";
+    public function insertChecUrl($url_id, $resUrl, $created_at) {
+        $sql = "INSERT INTO url_checks (url_id, status_code, created_at) 
+            VALUES (:url_id, :status_code, :created_at)";
         $sqlReqvest = $this->pdo->prepare($sql);
+
+        $code = $resUrl->getStatusCode();
+
         $sqlReqvest->bindValue(':url_id', $url_id);
+        $sqlReqvest->bindValue(':status_code', $code);
         $sqlReqvest->bindValue(':created_at', $created_at);
         $sqlReqvest->execute();
     }

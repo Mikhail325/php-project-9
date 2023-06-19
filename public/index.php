@@ -2,10 +2,13 @@
 
 use Slim\Factory\AppFactory;
 use DI\Container;
-use Valitron\Validator;
-use Carbon\Carbon;
 use PostgreSQL\Connection;
 use PostgreSQL\PostgreSQLCreateTable;
+use Valitron\Validator;
+use Carbon\Carbon;
+use GuzzleHttp\Client;
+use GuzzleHttp\Psr7;
+use GuzzleHttp\Exception\ClientException;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -95,8 +98,17 @@ $app->get('/urls/{id}', function ($req, $res, array $args) use ($tableCreator){
 
 $app->post('/urls/{url_id}/checks', function ($req, $res, array $args) use ($tableCreator, $dataTime, $router) {
     $id = $args['url_id'];
-    $tableCreator->insertChecUrl($id, $dataTime);
+    $client = new Client;
 
+    $urlName = $tableCreator->selectUrl($id)['name'];
+    
+    try {
+        $respons = $client->request('GET', $urlName);
+        $tableCreator->insertChecUrl($id, $respons, $dataTime);
+        $this->get('flash')->addMessage('success', 'Страница успешно проверена');
+    } catch (ClientException $e) {
+        $this->get('flash')->addMessage('error', 'Ошибка при проверке страницы');
+    }
     $url = $router->urlFor('url', ['id'=> $id]);
     return $res->withRedirect($url);
 })->setName('ChecUrl');
