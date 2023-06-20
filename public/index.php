@@ -78,7 +78,7 @@ $app->get('/urls', function ($req, $res) use ($urlsPDO) {
     $params = [
         'urls' => $urls
     ];
-    return $this->get('renderer')->render($res, 'urls/urls.phtml', $params);
+    return $this->get('renderer')->render($res, 'urls/index.phtml', $params);
 })->setName('urls');
 
 $app->get('/urls/{id}', function ($req, $res, array $args) use ($urlsPDO) {
@@ -92,7 +92,7 @@ $app->get('/urls/{id}', function ($req, $res, array $args) use ($urlsPDO) {
         'flash' => $messages,
         'checks' => $dataChecks
     ];
-    return $this->get('renderer')->render($res, 'urls/url.phtml', $params);
+    return $this->get('renderer')->render($res, 'urls/show.phtml', $params);
 })->setName('url');
 
 $app->post('/urls/{url_id}/checks', function ($req, $res, array $args) use ($urlsPDO, $dataTime, $router) {
