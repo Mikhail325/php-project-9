@@ -7,7 +7,6 @@ use PostgreSQL\PostgreSQLCreateTable;
 use Valitron\Validator;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
-use GuzzleHttp\Psr7;
 use GuzzleHttp\Exception\ClientException;
 
 require_once __DIR__ . '/../vendor/autoload.php';
@@ -44,16 +43,16 @@ $app->get('/', function ($req, $res) use ($tableCreator) {
     return $this->get('renderer')->render($res, 'index.phtml', $params);
 })->setName('startPage');
 
-$app->post('/urls', function($req ,$res) use ($router, $tableCreator, $dataTime) {
+$app->post('/urls', function ($req, $res) use ($router, $tableCreator, $dataTime) {
     $urls = $req->getParsedBodyParam('urls');
     $validator = new Validator($urls);
     $validator->rules([
         'required' => ['name'],
-        'lengthMax' =>[['name', 255]],
+        'lengthMax' => [['name', 255]],
         'url' => ['name']
     ]);
 
-    if ($validator->validate()){
+    if ($validator->validate()) {
         $parsedUrl = parse_url($urls['name']);
         $urlName = "{$parsedUrl["scheme"]}://{$parsedUrl["host"]}";
 
@@ -64,7 +63,7 @@ $app->post('/urls', function($req ,$res) use ($router, $tableCreator, $dataTime)
             $tableCreator->insertUrl($urlName, $dataTime);
         }
         $id = $tableCreator->getId($urlName);
-        $url = $router->urlFor('url', ['id'=> $id]);
+        $url = $router->urlFor('url', ['id' => $id]);
         return $res->withRedirect($url);
     }
     $params = [
@@ -82,7 +81,7 @@ $app->get('/urls', function ($req, $res) use ($tableCreator) {
     return $this->get('renderer')->render($res, 'urls.phtml', $params);
 })->setName('urls');
 
-$app->get('/urls/{id}', function ($req, $res, array $args) use ($tableCreator){
+$app->get('/urls/{id}', function ($req, $res, array $args) use ($tableCreator) {
     $id = $args['id'];
     $url = $tableCreator->selectUrl($id);
     $dataChecks = $tableCreator->selectChecUrl($id);
@@ -98,10 +97,10 @@ $app->get('/urls/{id}', function ($req, $res, array $args) use ($tableCreator){
 
 $app->post('/urls/{url_id}/checks', function ($req, $res, array $args) use ($tableCreator, $dataTime, $router) {
     $id = $args['url_id'];
-    $client = new Client;
+    $client = new Client();
 
     $urlName = $tableCreator->selectUrl($id)['name'];
-    
+
     try {
         $respons = $client->request('GET', $urlName);
         $tableCreator->insertChecUrl($id, $respons, $dataTime);
@@ -109,7 +108,7 @@ $app->post('/urls/{url_id}/checks', function ($req, $res, array $args) use ($tab
     } catch (ClientException $e) {
         $this->get('flash')->addMessage('error', 'Ошибка при проверке страницы');
     }
-    $url = $router->urlFor('url', ['id'=> $id]);
+    $url = $router->urlFor('url', ['id' => $id]);
     return $res->withRedirect($url);
 })->setName('ChecUrl');
 

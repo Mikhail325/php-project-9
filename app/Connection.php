@@ -2,22 +2,18 @@
 
 namespace PostgreSQL;
 
-
 final class Connection
 {
-
     private static ?Connection $conn = null;
 
     public function connect()
     {
-        // чтение параметров в файле конфигурации ini
-        $params = parse_ini_file('database.ini');
+        $params = parse_ini_file('database.ini');// чтение параметров в файле конфигурации ini
         if ($params === false) {
             throw new \Exception("Error reading database configuration file");
         }
 
-        // подключение к базе данных postgresql
-        $conStr = sprintf(
+        $conStr = sprintf(// подключение к базе данных postgresql
             "pgsql:host=%s;port=%d;dbname=%s;user=%s;password=%s",
             $params['host'],
             $params['port'],
@@ -32,7 +28,6 @@ final class Connection
         return $pdo;
     }
 
-
     public static function get()
     {
         if (null === static::$conn) {
@@ -43,7 +38,5 @@ final class Connection
 
     protected function __construct()
     {
-
     }
-    
 }
