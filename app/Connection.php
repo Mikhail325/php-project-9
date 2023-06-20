@@ -8,12 +8,12 @@ final class Connection
 
     public function connect()
     {
-        $params = parse_ini_file('database.ini');// чтение параметров в файле конфигурации ini
+        $params = parse_ini_file('Database.ini');
         if ($params === false) {
             throw new \Exception("Error reading database configuration file");
         }
 
-        $conStr = sprintf(// подключение к базе данных postgresql
+        $conStr = sprintf(
             "pgsql:host=%s;port=%d;dbname=%s;user=%s;password=%s",
             $params['host'],
             $params['port'],

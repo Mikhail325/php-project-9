@@ -3,7 +3,7 @@
 use Slim\Factory\AppFactory;
 use DI\Container;
 use PostgreSQL\Connection;
-use PostgreSQL\PostgreSQLCreateTable;
+use PostgreSQL\UrlsPDO;
 use Valitron\Validator;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
@@ -12,9 +12,10 @@ use GuzzleHttp\Exception\ClientException;
 require_once __DIR__ . '/../vendor/autoload.php';
 
 $pdo = Connection::get()->connect();
-$tableCreator = new PostgreSQLCreateTable($pdo);
+$urlsPDO = new UrlsPDO($pdo);
 
-// Параметром передается базовая директория, в которой будут храниться шаблоны
+$dataTime = Carbon::now();
+
 $container = new Container();
 $container->set('renderer', function () {
     return new \Slim\Views\PhpRenderer(__DIR__ . '/../templates');
@@ -27,14 +28,13 @@ $container->set('flash', function () {
 $app = AppFactory::createFromContainer($container);
 $app->addErrorMiddleware(true, true, true);
 
-$router = $app->getRouteCollector()->getRouteParser();//роутер – объект отвечающий за хранение и обработку маршрутов
-$dataTime = Carbon::now();
-//---------------------------------------------------------------------------------------
+$router = $app->getRouteCollector()->getRouteParser();
+
 session_start();
 
-$app->get('/', function ($req, $res) use ($tableCreator) {
-    if (!$tableCreator->tableExists('urls')) {
-        $tableCreator->createTables();
+$app->get('/', function ($req, $res) use ($urlsPDO) {
+    if (!$urlsPDO->tableExists('urls')) {
+        $urlsPDO->createTables();
     }
 
     $params = [
@@ -43,7 +43,7 @@ $app->get('/', function ($req, $res) use ($tableCreator) {
     return $this->get('renderer')->render($res, 'index.phtml', $params);
 })->setName('startPage');
 
-$app->post('/urls', function ($req, $res) use ($router, $tableCreator, $dataTime) {
+$app->post('/urls', function ($req, $res) use ($router, $urlsPDO, $dataTime) {
     $urls = $req->getParsedBodyParam('urls');
     $validator = new Validator($urls);
     $validator->rules([
@@ -56,15 +56,15 @@ $app->post('/urls', function ($req, $res) use ($router, $tableCreator, $dataTime
         $parsedUrl = parse_url($urls['name']);
         $urlName = "{$parsedUrl["scheme"]}://{$parsedUrl["host"]}";
 
-        if ($tableCreator->isRepet($urlName)) {
+        if ($urlsPDO->isRepet($urlName)) {
             $this->get('flash')->addMessage('success', 'Страница уже существует');
         } else {
             $this->get('flash')->addMessage('success', 'Страница созданна');
-            $tableCreator->insertUrl($urlName, $dataTime);
+            $urlsPDO->insertUrl($urlName, $dataTime);
         }
-        $id = $tableCreator->getId($urlName);
+        $id = $urlsPDO->getId($urlName);
         $url = $router->urlFor('url', ['id' => $id]);
-        return $res->withRedirect($url);
+        return $res->withRedirect($url, 302);
     }
     $params = [
         'errors' => true
@@ -73,18 +73,18 @@ $app->post('/urls', function ($req, $res) use ($router, $tableCreator, $dataTime
     return $this->get('renderer')->render($res->withStatus(422), 'index.phtml', $params);
 });
 
-$app->get('/urls', function ($req, $res) use ($tableCreator) {
-    $urls = $tableCreator->selectUrls();
+$app->get('/urls', function ($req, $res) use ($urlsPDO) {
+    $urls = $urlsPDO->selectUrls();
     $params = [
         'urls' => $urls
     ];
-    return $this->get('renderer')->render($res, 'urls.phtml', $params);
+    return $this->get('renderer')->render($res, 'urls/urls.phtml', $params);
 })->setName('urls');
 
-$app->get('/urls/{id}', function ($req, $res, array $args) use ($tableCreator) {
+$app->get('/urls/{id}', function ($req, $res, array $args) use ($urlsPDO) {
     $id = $args['id'];
-    $url = $tableCreator->selectUrl($id);
-    $dataChecks = $tableCreator->selectChecUrl($id);
+    $url = $urlsPDO->selectUrl($id);
+    $dataChecks = $urlsPDO->selectChecUrl($id);
 
     $messages = $this->get('flash')->getMessages();
     $params = [
@@ -92,24 +92,24 @@ $app->get('/urls/{id}', function ($req, $res, array $args) use ($tableCreator) {
         'flash' => $messages,
         'checks' => $dataChecks
     ];
-    return $this->get('renderer')->render($res, 'url.phtml', $params);
+    return $this->get('renderer')->render($res, 'urls/url.phtml', $params);
 })->setName('url');
 
-$app->post('/urls/{url_id}/checks', function ($req, $res, array $args) use ($tableCreator, $dataTime, $router) {
+$app->post('/urls/{url_id}/checks', function ($req, $res, array $args) use ($urlsPDO, $dataTime, $router) {
     $id = $args['url_id'];
     $client = new Client();
 
-    $urlName = $tableCreator->selectUrl($id)['name'];
+    $urlName = $urlsPDO->selectUrl($id)['name'];
 
     try {
         $respons = $client->request('GET', $urlName);
-        $tableCreator->insertChecUrl($id, $respons, $dataTime);
+        $urlsPDO->insertChecUrl($id, $respons, $dataTime);
         $this->get('flash')->addMessage('success', 'Страница успешно проверена');
     } catch (ClientException $e) {
         $this->get('flash')->addMessage('error', 'Ошибка при проверке страницы');
     }
     $url = $router->urlFor('url', ['id' => $id]);
-    return $res->withRedirect($url);
-})->setName('ChecUrl');
+    return $res->withRedirect($url, 302);
+});
 
 $app->run();

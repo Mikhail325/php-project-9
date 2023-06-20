@@ -4,7 +4,7 @@ namespace PostgreSQL;
 
 use DiDom\Document;
 
-class PostgreSQLCreateTable
+class UrlsPDO
 {
     private $pdo;
 
@@ -46,13 +46,12 @@ class PostgreSQLCreateTable
 
     public function isRepet($name)
     {
-        $sql = 'SELECT * FROM urls WHERE name = :name;';
+        $sql = "SELECT * FROM urls WHERE name = :name;";
         $sqlReqvest = $this->pdo->prepare($sql);
-        $sqlReqvest->bindValue(':name', $name);
-        $sqlReqvest->execute();
-        $array = $sqlReqvest->fetch(\PDO::FETCH_ASSOC);
+        $sqlReqvest->execute(['name' => $name]);
+        $url = $sqlReqvest->fetch(\PDO::FETCH_ASSOC);
 
-        if (!empty($array)) {
+        if (!empty($url)) {
             return true;
         }
         return false;
@@ -62,19 +61,19 @@ class PostgreSQLCreateTable
     {
         $sql = 'SELECT * FROM urls WHERE name = :name;';
         $sqlReqvest = $this->pdo->prepare($sql);
-        $sqlReqvest->bindValue(':name', $name);
-        $sqlReqvest->execute();
-        $array = $sqlReqvest->fetch(\PDO::FETCH_ASSOC);
-        return $array['id'];
+        $sqlReqvest->execute(['name' => $name]);
+        return $sqlReqvest->fetch(\PDO::FETCH_ASSOC)['id'];
+        
     }
 
     public function insertUrl($name, $date)
     {
         $sql = 'INSERT INTO urls (name, created_at) VALUES (:name, :created_at)';
         $sqlReqvest = $this->pdo->prepare($sql);
-        $sqlReqvest->bindValue(':name', $name);
-        $sqlReqvest->bindValue(':created_at', $date);
-        $sqlReqvest->execute();
+        $sqlReqvest->execute([
+            'name' => $name,
+            'created_at' => $date
+        ]);
     }
 
     public function selectUrl($id)
@@ -91,28 +90,29 @@ class PostgreSQLCreateTable
         return $this->pdo->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
     }
 
-    public function insertChecUrl($url_id, $resUrl, $created_at)
+    public function insertChecUrl($urlId, $resUrl, $createdAt)
     {
         $sql = "INSERT INTO url_checks (url_id, status_code, h1, title, description, created_at) 
             VALUES (:url_id, :status_code, :h1, :title, :description, :created_at)";
         $sqlReqvest = $this->pdo->prepare($sql);
 
-        $code = $resUrl->getStatusCode();
+        $statusCode = $resUrl->getStatusCode();
         $body = $resUrl->getBody()->getContents();
-
         $document = new Document($body);
+
         $h1 = $document->has('h1') ? $document->find('h1')[0]->text() : null;
         $title = $document->has('title') ? $document->find('title')[0]->text() : null;
         $description = $document->has('meta[name=description]') ? $document->find('meta[name=description]')[0]
             ->attr('content') : null;
 
-        $sqlReqvest->bindValue(':description', $description);
-        $sqlReqvest->bindValue(':title', $title);
-        $sqlReqvest->bindValue(':h1', $h1);
-        $sqlReqvest->bindValue(':url_id', $url_id);
-        $sqlReqvest->bindValue(':status_code', $code);
-        $sqlReqvest->bindValue(':created_at', $created_at);
-        $sqlReqvest->execute();
+        $sqlReqvest->execute([
+            'description' => $description,
+            'title' => $title,
+            'h1' => $h1,
+            'url_id' => $urlId,
+            'status_code' => $statusCode,
+            'created_at' => $createdAt,
+        ]);
     }
 
     public function selectChecUrl($id)
