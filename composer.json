@@ -1,10 +1,11 @@
 {
     "name": "hexlet/code",
+    "type": "project",
+    "bin": "/public/inddex.php",
     "description": "Page Analyzer",
     "autoload": {
         "psr-4": {
-            "Hexlet\\Code\\": "app/",
-            "PostgreSQL\\": "app/"
+            "Hexlet\\Code\\": "app/"
         }
     },
     "authors": [

@@ -1,6 +1,6 @@
 <?php
 
-namespace PostgreSQL;
+namespace Hexlet\Code;
 
 final class Connection
 {
