@@ -4,7 +4,7 @@ namespace Hexlet\Code;
 
 class Id
 {
-    static public function getId($pdo, $name)
+    public static function getId($pdo, $name)
     {
         $sql = 'SELECT * FROM urls WHERE name = :name;';
         $sqlReqvest = $pdo->prepare($sql);

@@ -4,7 +4,7 @@ namespace Hexlet\Code;
 
 class Repeat
 {
-    static public function isRepet($pdo, $name)
+    public static function isRepet($pdo, $name)
     {
         $sql = "SELECT * FROM urls WHERE name = :name;";
         $sqlReqvest = $pdo->prepare($sql);

@@ -10,7 +10,6 @@ final class Connection
     {
         $params = parse_ini_file('Database.ini');
         if ($params === false) {
-
             throw new \Exception("Error reading database configuration file");
         }
 

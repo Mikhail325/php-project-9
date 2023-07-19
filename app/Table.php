@@ -4,20 +4,19 @@ namespace Hexlet\Code;
 
 class Table
 {
-
     public function createTables($pdo)
     {
-        if(!$this->tableExists($pdo, 'urls')) {
+        if (!$this->tableExists($pdo, 'urls')) {
             $sql = 'CREATE TABLE urls (
                 id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
                 name varchar(255),
                 created_at timestamp
                 );';
-            $pdo->exec($sql);  
+            $pdo->exec($sql);
         }
 
-        if(!$this->tableExists($pdo, 'url_checks')) {
-            $sql = $sql ='CREATE TABLE url_checks (
+        if (!$this->tableExists($pdo, 'url_checks')) {
+            $sql = 'CREATE TABLE url_checks (
             id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
             url_id bigint REFERENCES urls (id),
             status_code int,
@@ -26,7 +25,7 @@ class Table
             description varchar(255),
             created_at timestamp
             );';
-            $pdo->exec($sql);  
+            $pdo->exec($sql);
         }
         return $this;
     }

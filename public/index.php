@@ -2,12 +2,10 @@
 
 use Slim\Factory\AppFactory;
 use DI\Container;
-
 use Hexlet\Code\Connection;
 use Hexlet\Code\Urls\CheckedUrl;
 use Hexlet\Code\Urls\Url;
 use Hexlet\Code\Table;
-
 use Valitron\Validator;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
@@ -46,7 +44,7 @@ $app->get('/', function ($req, $res) {
     ];
 
     return $this->get('renderer')->render($res, 'index.phtml', $params);
-})->setName('startPage');
+})->setName('main');
 
 $app->post('/urls', function ($req, $res) use ($router, $url, $pdo) {
     $urls = $req->getParsedBodyParam('urls');
