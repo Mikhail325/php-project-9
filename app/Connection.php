@@ -8,7 +8,7 @@ final class Connection
 
     public function connect()
     {
-        $file = realpath(__DIR__ . '/Database.ini');
+        $file = realpath(__DIR__ . '/database.ini');
         if ($file === false) {
                 $databaseUrl = parse_url($_ENV['DATABASE_URL']);
                 $username = $databaseUrl['user']; // janedoe
@@ -25,7 +25,7 @@ final class Connection
                     $password
                 );
             } else {
-                $params = parse_ini_file('Database.ini');
+                $params = parse_ini_file('database.ini');
                 if ($params) {
                     $conStr = sprintf(
                         "pgsql:host=%s;port=%d;dbname=%s;user=%s;password=%s",
