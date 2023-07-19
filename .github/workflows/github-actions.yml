@@ -1,27 +1,12 @@
-name: PHP CI
-on: [push]
+name: testGit
+on: push
+
 jobs:
-  build:
+  myTest:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: Setup PHP
-        # Action gives to setup the PHP environment to test application
-        # https://github.com/shivammathur/setup-php
-      with:
-        # Specify the PHP version
-        php-version: '8.1.2'
-    - name: Install
-      run: make install
-
-    - name: Run linter
-      run: make lint
-
-    # - name: Code Climate Coverage Action
-    #   uses: paambaati/codeclimate-action@v3.0.0
-    #   env:
-    #     CC_TEST_REPORTER_ID: ${{ secrets.CODECLIMATE_TESTCOVERAGE_PHP_PROJECT_9 }}
-    #   with:
-    #     coverageCommand: make test-coverage
-    #     coverageLocations: ${{github.workplace}}/build/logs/clover.xml:clover
-    #     debug: true
+      - uses: actions/checkout@v3
+      - name: Instal
+        run : make install
+      - name: Run linter
+        run : make lint
