@@ -10,7 +10,7 @@ final class Connection
     {
         $file = realpath(__DIR__ . '/database.ini');
         if ($file === false) {
-                $databaseUrl = parse_url($_ENV['DATABASE_URL']);
+                $databaseUrl = parse_url(getenv('DATABASE_URL'));
                 $username = $databaseUrl['user']; // janedoe
                 $password = $databaseUrl['pass']; // mypassword
                 $host = $databaseUrl['host']; // localhost
@@ -24,22 +24,22 @@ final class Connection
                     $username,
                     $password
                 );
+        } else {
+            $params = parse_ini_file('database.ini');
+            if ($params) {
+                $conStr = sprintf(
+                    "pgsql:host=%s;port=%d;dbname=%s;user=%s;password=%s",
+                    $params['host'],
+                    $params['port'],
+                    $params['database'],
+                    $params['user'],
+                    $params['password']
+                );
             } else {
-                $params = parse_ini_file('database.ini');
-                if ($params) {
-                    $conStr = sprintf(
-                        "pgsql:host=%s;port=%d;dbname=%s;user=%s;password=%s",
-                        $params['host'],
-                        $params['port'],
-                        $params['database'],
-                        $params['user'],
-                        $params['password']
-                    );
-                } else {
-                    return false;
-                }
+                return false;
             }
-        
+        }
+
         $pdo = new \PDO($conStr);
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         return $pdo;

@@ -1,1 +1,1 @@
-{"version":1,"defects":[],"times":{"Hexlet\\Code\\tests\\GenDiffTest::testGenDiff":0.041}}
+{"version":1,"defects":{"Hexlet\\Code\\tests\\GenDiffTest::testTable":8},"times":{"Hexlet\\Code\\tests\\GenDiffTest::testGenDiff":0.041,"Hexlet\\Code\\tests\\GenDiffTest::testConnect":0.173,"Hexlet\\Code\\tests\\GenDiffTest::testTable":0.09}}
