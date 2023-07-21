@@ -1,16 +1,14 @@
 {
     "name": "hexlet/code",
-    "type": "project",
-    "bin": "/public/inddex.php",
     "description": "Page Analyzer",
     "autoload": {
         "psr-4": {
-            "Hexlet\\Code\\": "app/"
+            "Hexlet\\Code\\": "src/"
         }
     },
     "authors": [
         {
-            "name": "Mikhail",
+            "name": "Mikhail Sukhanov",
             "email": "miklsuhanov@gmail.com"
         }
     ],
