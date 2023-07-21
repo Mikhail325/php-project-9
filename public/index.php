@@ -47,7 +47,7 @@ $app->get('/', function ($req, $res) {
 })->setName('main');
 
 $app->post('/urls', function ($req, $res) use ($router, $url, $pdo) {
-    $urls = $req->getParsedBodyParam('url');
+    $urls = $req->getParsedBodyParam('urls');
 
     $validator = new Validator($urls);
     $validator->rules([
@@ -69,7 +69,7 @@ $app->post('/urls', function ($req, $res) use ($router, $url, $pdo) {
 
         $id = Hexlet\Code\Id::getId($pdo, $urlName);
         $url = $router->urlFor('url', ['id' => $id]);
-        return $res->withRedirect($url, 422);
+        return $res->withRedirect($url, 302);
     }
     $params = [
         'errors' => true
@@ -114,7 +114,8 @@ $app->post('/urls/{url_id}/checks', function ($req, $res, array $args) use ($url
         $this->get('flash')->addMessage('error', 'Ошибка при проверке страницы');
     }
     $url = $router->urlFor('url', ['id' => $id]);
-    return $res->withRedirect($url);
+    return $res->withRedirect($url, 302);
 });
 
 $app->run();
+

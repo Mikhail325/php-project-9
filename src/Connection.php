@@ -10,7 +10,7 @@ final class Connection
     {
         $file = realpath(__DIR__ . '/database.ini');
         if ($file === false) {
-                $databaseUrl = parse_url(getenv('DATABASE_URL'));
+                $databaseUrl = parse_url($_ENV('DATABASE_URL'));
                 $username = $databaseUrl['user']; // janedoe
                 $password = $databaseUrl['pass']; // mypassword
                 $host = $databaseUrl['host']; // localhost
