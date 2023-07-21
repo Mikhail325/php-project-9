@@ -6,14 +6,15 @@ use Carbon\Carbon;
 
 class Url
 {
-    private $pdo;
+    private \PDO $pdo;
 
-    public function __construct($pdo)
+    public function __construct(\PDO $pdo)
     {
         $this->pdo = $pdo;
     }
 
-    public function setUrl($name)
+    
+    public function setUrl(string $name): void
     {
         $dataTime = Carbon::now();
         $sql = 'INSERT INTO urls (name, created_at) VALUES (:name, :created_at)';
@@ -24,13 +25,13 @@ class Url
         ]);
     }
 
-    public function getUrl($id)
+    public function getUrl(int $id): mixed
     {
         $sql = "SELECT * FROM urls WHERE id = {$id};";
         return $this->pdo->query($sql)->fetch(\PDO::FETCH_ASSOC);
     }
 
-    public function getUrls()
+    public function getUrls(): mixed
     {
         $sql = "SELECT urls.name, urls.id, MAX(url_checks.created_at) AS created_at, url_checks.status_code 
         FROM urls LEFT JOIN url_checks ON urls.id = url_checks.url_id

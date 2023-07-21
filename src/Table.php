@@ -4,7 +4,7 @@ namespace Hexlet\Code;
 
 class Table
 {
-    public function createTables($pdo)
+    public function createTables(\PDO $pdo): void
     {
         if (!$this->tableExists($pdo, 'urls')) {
             $sql = 'CREATE TABLE urls (
@@ -27,13 +27,13 @@ class Table
             );';
             $pdo->exec($sql);
         }
-        return $this;
+        return;
     }
 
-    public function tableExists($pdo, $table)
+    public function tableExists(\PDO $pdo, string $tableName): bool
     {
         try {
-            $result = $pdo->query("SELECT 1 FROM {$table} LIMIT 1");
+            $result = $pdo->query("SELECT 1 FROM {$tableName} LIMIT 1");
         } catch (\Exception $e) {
             return false;
         }
