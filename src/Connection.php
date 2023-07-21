@@ -4,8 +4,6 @@ namespace Hexlet\Code;
 
 final class Connection
 {
-    private static ?Connection $conn = null;
-
     public static function connect()
     {
         
@@ -16,6 +14,7 @@ final class Connection
             $host = $databaseUrl['host'];
             $port = $databaseUrl['port'];
             $dbname = ltrim($databaseUrl['path'], '/');
+            $conStr = "pgsql:host=$host;port=$port;dbname=$dbname";
         } else {
             $params = parse_ini_file('database.ini');
                 $conStr = sprintf(
