@@ -69,7 +69,7 @@ $app->post('/urls', function ($req, $res) use ($router, $url, $pdo) {
 
         $id = Hexlet\Code\Id::getId($pdo, $urlName);
         $url = $router->urlFor('url', ['id' => $id]);
-        return $res->withRedirect($url, 302);
+        return $res->withRedirect($url, 422);
     }
     $params = [
         'errors' => true
@@ -114,7 +114,7 @@ $app->post('/urls/{url_id}/checks', function ($req, $res, array $args) use ($url
         $this->get('flash')->addMessage('error', 'Ошибка при проверке страницы');
     }
     $url = $router->urlFor('url', ['id' => $id]);
-    return $res->withRedirect($url, 302);
+    return $res->withRedirect($url);
 });
 
 $app->run();
