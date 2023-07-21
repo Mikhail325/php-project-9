@@ -6,7 +6,6 @@ final class Connection
 {
     public static function connect()
     {
-        
         if (isset($_ENV['DATABASE_URL'])) {
             $databaseUrl = parse_url($_ENV['DATABASE_URL']);
             $username = $databaseUrl['user'];

@@ -118,4 +118,3 @@ $app->post('/urls/{url_id}/checks', function ($req, $res, array $args) use ($url
 });
 
 $app->run();
-
