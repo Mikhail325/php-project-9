@@ -47,7 +47,7 @@ $app->get('/', function ($req, $res) {
 })->setName('main');
 
 $app->post('/urls', function ($req, $res) use ($router, $url, $pdo) {
-    $urls = $req->getParsedBodyParam('urls');
+    $urls = $req->getParsedBodyParam('url');
 
     $validator = new Validator($urls);
     $validator->rules([
