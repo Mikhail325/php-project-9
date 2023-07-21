@@ -7,5 +7,7 @@ install:
 	composer install
 test:
 	XDEBUG_MODE=coverage composer exec --verbose phpunit tests -- --coverage-text
-test-coverage:
-	XDEBUG_MODE=coverage composer exec --verbose phpunit tests -- --coverage-clover build/logs/clover.xml
+test-html:
+	XDEBUG_MODE=coverage composer exec --verbose phpunit tests -- --coverage-html tests/coverage
+test-xml:
+	XDEBUG_MODE=coverage composer exec --verbose phpunit tests -- --coverage-clover tests/coverage.xml
