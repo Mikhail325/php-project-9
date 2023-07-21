@@ -35,13 +35,12 @@ final class Connection
                     $params['user'],
                     $params['password']
                 );
-            } else {
-                return false;
+                $username = $params['user'];
+                $password = $params['password'];
             }
         }
 
-        $pdo = new \PDO($conStr);
-        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $pdo = new \PDO($conStr, $username, $password);
         return $pdo;
     }
 
