@@ -6,7 +6,7 @@ final class Connection
 {
     private static ?Connection $conn = null;
 
-    public function connect()
+    public static function connect()
     {
         
         if (isset($_ENV['DATABASE_URL'])) {
@@ -31,17 +31,5 @@ final class Connection
         }
         $pdo = new \PDO($conStr, $username, $password);
         return $pdo;
-    }
-
-    public static function get()
-    {
-        if (null === static::$conn) {
-            static::$conn = new self();
-        }
-        return static::$conn;
-    }
-
-    protected function __construct()
-    {
     }
 }

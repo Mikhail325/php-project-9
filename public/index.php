@@ -13,7 +13,7 @@ use GuzzleHttp\Exception\ClientException;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-$pdo = Connection::get()->connect();
+$pdo = Connection::connect();
 $url = new Url($pdo);
 $CheckedUrl = new CheckedUrl($pdo);
 
@@ -47,7 +47,7 @@ $app->get('/', function ($req, $res) {
 })->setName('main');
 
 $app->post('/urls', function ($req, $res) use ($router, $url, $pdo) {
-    $urls = $req->getParsedBodyParam('urls');
+    $urls = $req->getParsedBodyParam('url');
 
     $validator = new Validator($urls);
     $validator->rules([
