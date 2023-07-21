@@ -63,7 +63,7 @@ $app->post('/urls', function ($req, $res) use ($router, $url, $pdo) {
         if (Hexlet\Code\Repeat::isRepet($pdo, $urlName)) {
             $this->get('flash')->addMessage('success', 'Страница уже существует');
         } else {
-            $this->get('flash')->addMessage('success', 'Страница созданна');
+            $this->get('flash')->addMessage('success', 'Страница успешно добавлена');
             $url->setUrl($urlName);
         }
 
