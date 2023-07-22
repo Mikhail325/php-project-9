@@ -38,7 +38,6 @@ $app->get('/', function ($req, $res) {
     $params = [
         'errors' => []
     ];
-    /** @var \Container $this*/
     return $this->get('renderer')->render($res, 'index.phtml', $params);
 })->setName('main');
 
