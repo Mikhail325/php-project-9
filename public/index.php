@@ -67,7 +67,7 @@ $app->post('/urls', function ($req, $res) use ($router, $url, $pdo) {
         return $res->withRedirect($urlRout);
     }
     $params = [
-        'errors' => true
+        'errors' => $urls['name']
     ];
 
     return $this->get('renderer')->render($res->withStatus(422), 'index.phtml', $params);

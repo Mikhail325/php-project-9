@@ -9,7 +9,7 @@ class Repeat
         $sql = "SELECT * FROM urls WHERE name = :name;";
         $sqlReqvest = $pdo->prepare($sql);
         $sqlReqvest->execute(['name' => $name]);
-        $url = $sqlReqvest->fetch(\PDO::FETCH_ASSOC);
+        $url = $sqlReqvest->fetch();
 
         if (!empty($url)) {
             return true;

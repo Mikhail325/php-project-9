@@ -3,8 +3,7 @@
 namespace Hexlet\Code\Urls;
 
 use Carbon\Carbon;
-use DiDom\Document;
-use GuzzleHttp\Client;
+use Hexlet\Code\DataUrl;
 
 class CheckedUrl
 {
@@ -22,26 +21,14 @@ class CheckedUrl
         $sqlReqvest = $this->pdo->prepare($sql);
 
         $dataTime = Carbon::now();
-
-        $client = new Client();
-        $respons = $client->request('GET', $urlName);
-        $statusCode = $respons->getStatusCode();
-        $body = $respons->getBody()->getContents();
-
-        /** @var Document $document */
-        $document = new Document($body);
-        $h1 = $document->has('h1') ? optional($document->find('h1')[0])->text() : null;
-        $title = $document->has('title') ? optional($document->find('title')[0])->text() : null;
-        $description = $document->has('meta[name=description]') ?
-            optional($document->find('meta[name=description]')[0])
-            ->attr('content') : null;
+        $dataUrl = DataUrl::getData($urlName);
 
         $sqlReqvest->execute([
-            'description' => $description,
-            'title' => $title,
-            'h1' => $h1,
+            'description' => $dataUrl['description'],
+            'title' => $dataUrl['title'],
+            'h1' => $dataUrl['h1'],
             'url_id' => $urlId,
-            'status_code' => $statusCode,
+            'status_code' => $dataUrl['status_code'],
             'created_at' => $dataTime,
         ]);
     }
