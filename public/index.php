@@ -63,8 +63,8 @@ $app->post('/urls', function ($req, $res) use ($router, $url, $pdo) {
         }
 
         $id = Hexlet\Code\Id::getId($pdo, $urlName);
-        $url = $router->urlFor('url', ['id' => $id]);
-        return $res->withRedirect($url, 302);
+        $urlRout = $router->urlFor('url', ['id' => $id]);
+        return $res->withRedirect($urlRout, 302);
     }
     $params = [
         'errors' => true
