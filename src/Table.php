@@ -37,6 +37,6 @@ class Table
         } catch (\Exception $e) {
             return false;
         }
-        return $result !== false;
+        return true;
     }
 }

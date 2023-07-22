@@ -4,31 +4,36 @@ namespace Hexlet\Code\Urls;
 
 use Carbon\Carbon;
 use DiDom\Document;
+use GuzzleHttp\Client;
 
 class CheckedUrl
 {
-    private $pdo;
+    private \PDO $pdo;
 
-    public function __construct($pdo)
+    public function __construct(\PDO $pdo)
     {
         $this->pdo = $pdo;
     }
 
-    public function setUrl($urlId, $resUrl)
+    public function setUrl(int $urlId, string $urlName): void
     {
-        $dataTime = Carbon::now();
-
         $sql = "INSERT INTO url_checks (url_id, status_code, h1, title, description, created_at) 
             VALUES (:url_id, :status_code, :h1, :title, :description, :created_at)";
         $sqlReqvest = $this->pdo->prepare($sql);
 
-        $statusCode = $resUrl->getStatusCode();
-        $body = $resUrl->getBody()->getContents();
-        $document = new Document($body);
+        $dataTime = Carbon::now();
 
-        $h1 = $document->has('h1') ? $document->find('h1')[0]->text() : null;
-        $title = $document->has('title') ? $document->find('title')[0]->text() : null;
-        $description = $document->has('meta[name=description]') ? $document->find('meta[name=description]')[0]
+        $client = new Client();
+        $respons = $client->request('GET', $urlName);
+        $statusCode = $respons->getStatusCode();
+        $body = $respons->getBody()->getContents();
+
+        /** @var Document $document */
+        $document = new Document($body);
+        $h1 = $document->has('h1') ? optional($document->find('h1')[0])->text() : null;
+        $title = $document->has('title') ? optional($document->find('title')[0])->text() : null;
+        $description = $document->has('meta[name=description]') ?
+            optional($document->find('meta[name=description]')[0])
             ->attr('content') : null;
 
         $sqlReqvest->execute([
@@ -41,10 +46,10 @@ class CheckedUrl
         ]);
     }
 
-    public function getUrl($id)
+    public function getUrl(int $id): mixed
     {
         $sql = "SELECT * FROM url_checks WHERE url_id = {$id}
             ORDER BY url_checks.id DESC;";
-        return $this->pdo->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
+        return optional($this->pdo->query($sql))->fetchAll();
     }
 }

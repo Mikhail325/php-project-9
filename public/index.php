@@ -7,8 +7,6 @@ use Hexlet\Code\Urls\CheckedUrl;
 use Hexlet\Code\Urls\Url;
 use Hexlet\Code\Table;
 use Valitron\Validator;
-use Carbon\Carbon;
-use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 
 require_once __DIR__ . '/../vendor/autoload.php';
@@ -16,8 +14,6 @@ require_once __DIR__ . '/../vendor/autoload.php';
 $pdo = Connection::connect();
 $url = new Url($pdo);
 $CheckedUrl = new CheckedUrl($pdo);
-
-$dataTime = Carbon::now();
 
 $container = new Container();
 $container->set('renderer', function () {
@@ -42,7 +38,7 @@ $app->get('/', function ($req, $res) {
     $params = [
         'errors' => []
     ];
-
+    /** @var \Container $this*/
     return $this->get('renderer')->render($res, 'index.phtml', $params);
 })->setName('main');
 
@@ -102,13 +98,10 @@ $app->get('/urls/{id}', function ($req, $res, array $args) use ($url, $CheckedUr
 
 $app->post('/urls/{url_id}/checks', function ($req, $res, array $args) use ($url, $CheckedUrl, $router) {
     $id = $args['url_id'];
-    $client = new Client();
-
     $urlName = $url->getUrl($id)['name'];
 
     try {
-        $respons = $client->request('GET', $urlName);
-        $CheckedUrl->setUrl($id, $respons);
+        $CheckedUrl->setUrl($id, $urlName);
         $this->get('flash')->addMessage('success', 'Страница успешно проверена');
     } catch (ClientException $e) {
         $this->get('flash')->addMessage('error', 'Ошибка при проверке страницы');

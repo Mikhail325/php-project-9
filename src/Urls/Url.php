@@ -13,7 +13,6 @@ class Url
         $this->pdo = $pdo;
     }
 
-    
     public function setUrl(string $name): void
     {
         $dataTime = Carbon::now();
@@ -28,7 +27,7 @@ class Url
     public function getUrl(int $id): mixed
     {
         $sql = "SELECT * FROM urls WHERE id = {$id};";
-        return $this->pdo->query($sql)->fetch(\PDO::FETCH_ASSOC);
+        return optional($this->pdo->query($sql))->fetch();
     }
 
     public function getUrls(): mixed
@@ -36,6 +35,6 @@ class Url
         $sql = "SELECT urls.name, urls.id, MAX(url_checks.created_at) AS created_at, url_checks.status_code 
         FROM urls LEFT JOIN url_checks ON urls.id = url_checks.url_id
         GROUP BY (urls.name, urls.id, url_checks.status_code);";
-        return $this->pdo->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
+        return optional($this->pdo->query($sql))->fetchAll();
     }
 }
