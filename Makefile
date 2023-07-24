@@ -6,6 +6,8 @@ lint:
 phpstan:
 	vendor/bin/phpstan analyse --level 8 src public
 install:
+	curl -sS https://getcomposer.org/installer -o composer-setup.php
+	php composer-setup.php
 	composer --version
 	composer install
 test:
