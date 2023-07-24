@@ -6,7 +6,8 @@ lint:
 phpstan:
 	vendor/bin/phpstan analyse --level 8 src public
 install:
-	sudo apt install php
+	apt show php
+	apt install php
 	php --version
 	curl -sS https://getcomposer.org/installer -o composer-setup.php
 	php composer-setup.php
