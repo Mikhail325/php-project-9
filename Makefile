@@ -6,12 +6,6 @@ lint:
 phpstan:
 	vendor/bin/phpstan analyse --level 8 src public
 install:
-	apt show php
-	apt install php
-	php --version
-	curl -sS https://getcomposer.org/installer -o composer-setup.php
-	php composer-setup.php
-	composer --version
 	composer install
 test:
 	XDEBUG_MODE=coverage composer exec --verbose phpunit tests -- --coverage-text
