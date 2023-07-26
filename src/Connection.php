@@ -13,6 +13,7 @@ final class Connection
             /** @var  array{user: string, pass: string, host: string, port: string, path: string} $databaseUrl */
             $databaseUrl = parse_ini_file('database.ini');
         }
+        print_r($databaseUrl);
         $username = $databaseUrl['user'];//
         $password = $databaseUrl['pass'];
         $host = $databaseUrl['host'];
