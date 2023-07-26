@@ -10,6 +10,7 @@ use Valitron\Validator;
 use GuzzleHttp\Exception\ClientException;
 
 require_once __DIR__ . '/../vendor/autoload.php';
+session_start();
 
 $pdo = Connection::connect();
 $url = new Url($pdo);
@@ -28,8 +29,6 @@ $app = AppFactory::createFromContainer($container);
 $app->addErrorMiddleware(true, true, true);
 
 $router = $app->getRouteCollector()->getRouteParser();
-
-session_start();//-------------------------------start---------------------------------------
 
 $table = new Table();
 $table->createTables($pdo);
