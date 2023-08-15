@@ -4,7 +4,6 @@ use Slim\Factory\AppFactory;
 use Slim\Views\PhpRenderer;
 use Slim\Flash\Messages;
 use DI\Container;
-use Hexlet\Code\Connection;
 use Hexlet\Code\Table;
 use Hexlet\Code\DataUrl;
 use Valitron\Validator;
@@ -36,7 +35,7 @@ $colunmsTableUrls = [
     'name' => 'varchar(255)',
     'created_at' => 'timestamp'
 ];
-$urls = new Table($nameTableUrls, $colunmsTableUrls);
+$urlsDb = new Table($nameTableUrls, $colunmsTableUrls);
 
 $nameTableUrlChecks = 'url_checks';
 $colunmsTableUrlChecks  = [
@@ -48,9 +47,9 @@ $colunmsTableUrlChecks  = [
     'description' => 'varchar(255)',
     'created_at' => 'timestamp'
 ];
-$urlChecks = new Table($nameTableUrlChecks, $colunmsTableUrlChecks);
+$urlChecksDb = new Table($nameTableUrlChecks, $colunmsTableUrlChecks);
 
-$urls->linkTables($urlChecks, 'id', 'url_id');
+$urlsDb->linkTables($urlChecksDb, 'id', 'url_id');
 
 $app->get('/', function ($req, $res) {
     $params = [
@@ -60,7 +59,7 @@ $app->get('/', function ($req, $res) {
     return $this->get('renderer')->render($res, 'index.phtml', $params);
 })->setName('main');
 
-$app->post('/urls', function ($req, $res) use ($router, $urls) {
+$app->post('/urls', function ($req, $res) use ($router, $urlsDb) {
     $url = $req->getParsedBodyParam('url');
 
     $validator = new Validator($url);
@@ -75,7 +74,7 @@ $app->post('/urls', function ($req, $res) use ($router, $urls) {
         $parsedUrl = parse_url($url['name']);
         $url = "{$parsedUrl['scheme']}://{$parsedUrl['host']}";
 
-        if (!empty($urls->tableRepository->get(['name' => "'$url'"]))) {
+        if (!empty($urlsDb->tableRepository->get(['name' => "'$url'"]))) {
             /** @phpstan-ignore-next-line */
             $this->get('flash')->addMessage('success', 'Страница уже существует');
         } else {
@@ -85,10 +84,10 @@ $app->post('/urls', function ($req, $res) use ($router, $urls) {
                 'name' => $url,
                 'created_at' => Carbon::now()
             ];
-            $urls->tableRepository->set($valuesColumns);
+            $urlsDb->tableRepository->set($valuesColumns);
         }
 
-        $id = $urls->tableRepository->get(['name' => "'$url'"])['id'];
+        $id = $urlsDb->tableRepository->get(['name' => "'$url'"])['id'];
         $urlRout = $router->urlFor('url', ['id' => $id]);
         return $res->withRedirect($urlRout);
     }
@@ -100,13 +99,14 @@ $app->post('/urls', function ($req, $res) use ($router, $urls) {
     return $this->get('renderer')->render($res->withStatus(422), 'index.phtml', $params);
 });
 
-$app->get('/urls', function ($req, $res) use ($urls) {
+$app->get('/urls', function ($req, $res) use ($urlsDb) {
 
     $foreignTableColumns = ['name', 'id'];
     $relatedTableColumns = ['created_at', 'status_code'];
     $distinctColumn = 'url_checks.created_at';
     $sortColumn = 'id';
-    $urls = $urls->tableRepository->getRelated(
+
+    $urls = $urlsDb->tableRepository->getRelated(
         $foreignTableColumns,
         $relatedTableColumns,
         $distinctColumn,
@@ -120,10 +120,10 @@ $app->get('/urls', function ($req, $res) use ($urls) {
     return $this->get('renderer')->render($res, 'urls/index.phtml', $params);
 })->setName('urls');
 
-$app->get('/urls/{id}', function ($req, $res, array $args) use ($urls, $urlChecks) {
+$app->get('/urls/{id}', function ($req, $res, array $args) use ($urlsDb, $urlChecksDb) {
     $id = $args['id'];
-    $url = $urls->tableRepository->get(['id' => "'$id'"]);
-    $dataChecks = $urlChecks->tableRepository->get(['url_id' => "'$id'"], false, true);
+    $url = $urlsDb->tableRepository->get(['id' => "'$id'"]);
+    $dataChecks = $urlChecksDb->tableRepository->get(['url_id' => "'$id'"], false, true);
     /** @phpstan-ignore-next-line */
     $messages = $this->get('flash')->getMessages();
     $params = [
@@ -135,9 +135,9 @@ $app->get('/urls/{id}', function ($req, $res, array $args) use ($urls, $urlCheck
     return $this->get('renderer')->render($res, 'urls/show.phtml', $params);
 })->setName('url');
 
-$app->post('/urls/{url_id}/checks', function ($req, $res, array $args) use ($urls, $urlChecks, $router) {
+$app->post('/urls/{url_id}/checks', function ($req, $res, array $args) use ($urlsDb, $urlChecksDb, $router) {
     $id = $args['url_id'];
-    $url = $urls->tableRepository->get(['id' => "'$id'"])['name'];
+    $url = $urlsDb->tableRepository->get(['id' => "'$id'"])['name'];
 
     try {
         $dataUrl = DataUrl::getData($url);
@@ -149,7 +149,7 @@ $app->post('/urls/{url_id}/checks', function ($req, $res, array $args) use ($url
             'status_code' => $dataUrl['status_code'],
             'created_at' => Carbon::now()
         ];
-        $urlChecks->tableRepository->set($valuesColumns);
+        $urlChecksDb->tableRepository->set($valuesColumns);
         /** @phpstan-ignore-next-line */
         $this->get('flash')->addMessage('success', 'Страница успешно проверена');
     } catch (ClientException $e) {

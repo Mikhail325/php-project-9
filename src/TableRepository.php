@@ -12,16 +12,14 @@ class TableRepository
     public function __construct(Table $table)
     {
         $this->table = $table;
-        $this->pdo = Connection::connect();;
+        $this->pdo = Connection::connect();
 
-        if (!$this->tableExists()) {
+        if (!$this->isTableExists()) {
             $this->createTeble();
         }
     }
 
-    /**
-     * @param array<string> $valuesColumns
-     */
+    /** @param array<string> $valuesColumns */
     public function set(array $valuesColumns): void
     {
         $columns = implode(', ', array_keys($valuesColumns));
@@ -35,8 +33,9 @@ class TableRepository
 
     /**
      * @param array<string> $valuesColumns
+     * @return array<mixed>
      */
-    public function get(array $valuesColumns = null, bool $sortId = false, bool $allValue = false): mixed
+    public function get(array $valuesColumns = null, bool $sortId = false, bool $allValue = false): array
     {
         if (isset($valuesColumns)) {
             $conditionColumns = array_map(
@@ -61,19 +60,21 @@ class TableRepository
     }
 
     /**
-     * @param array<string> $foreignTableColumns
-     * @param array<string> $relatedTableColumns
-     * @param string $distinctColumn
-     * @param string $sortColumn
-     * @return mixed
+     * @param array<string> $foreignColumns
+     * @param array<string> $relatedColumns
+     * @return array<mixed>
      */
-    public function getRelated($foreignTableColumns, $relatedTableColumns, $distinctColumn = null, $sortColumn = null)
-    {
-        $foreignColumn = array_map(fn($value) => "{$this->table->nameTable}.$value", $foreignTableColumns);
+    public function getRelated(
+        array $foreignColumns,
+        array $relatedColumns,
+        string $distinctColumn = null,
+        string $sortColumn = null
+    ): array {
+        $foreignColumn = array_map(fn($value) => "{$this->table->nameTable}.$value", $foreignColumns);
         $foreignColumn = implode(', ', $foreignColumn);
         $relatedColumn = array_map(
             fn($value) => "{$this->table->relatedTable->nameTable}.$value",
-            $relatedTableColumns
+            $relatedColumns
         );
         $relatedColumn = implode(', ', $relatedColumn);
 
@@ -109,7 +110,7 @@ class TableRepository
         $this->pdo->exec($sql);
     }
 
-    private function tableExists(): bool
+    private function isTableExists(): bool
     {
         try {
             $this->pdo->query("SELECT 1 FROM {$this->table->nameTable} LIMIT 1");
