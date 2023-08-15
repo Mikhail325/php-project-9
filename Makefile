@@ -7,5 +7,3 @@ phpstan:
 	vendor/bin/phpstan analyse --level 8 src public
 install:
 	composer install
-test:
-	XDEBUG_MODE=coverage composer exec --verbose phpunit tests -- --coverage-text

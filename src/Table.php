@@ -2,41 +2,40 @@
 
 namespace Hexlet\Code;
 
+use Hexlet\Code\TableRepository;
+
 class Table
 {
-    public function createTables(\PDO $pdo): void
-    {
-        if (!$this->tableExists($pdo, 'urls')) {
-            $sql = 'CREATE TABLE urls (
-                id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-                name varchar(255),
-                created_at timestamp
-                );';
-            $pdo->exec($sql);
-        }
+    public string $nameTable;
+     /**
+     * @var array<string> $columnsTable
+     */
+    public array $columnsTable;
+     /**
+     * @var array<string> $typeColumnsTable
+     */
+    public array $typeColumnsTable;
+    public Table $relatedTable;
+    public string $foreignPivotKey;
+    public string $relatedPivotKey;
+    public TableRepository $tableRepository;
+    public \PDO $pdo;
 
-        if (!$this->tableExists($pdo, 'url_checks')) {
-            $sql = 'CREATE TABLE url_checks (
-            id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-            url_id bigint REFERENCES urls (id),
-            status_code int,
-            h1 varchar(255),
-            title varchar(255),
-            description varchar(255),
-            created_at timestamp
-            );';
-            $pdo->exec($sql);
-        }
-        return;
+    /**
+     * @param array<string> $columnsTable
+     */
+    public function __construct(string $nameTable, array $columnsTable)
+    {
+        $this->nameTable = $nameTable;
+        $this->columnsTable = array_keys($columnsTable);
+        $this->typeColumnsTable = array_values($columnsTable);
+        $this->tableRepository = new TableRepository($this);
     }
 
-    public function tableExists(\PDO $pdo, string $tableName): bool
+    public function linkTables(Table $table, string $foreignPivotKey, string $relatedPivotKey): void
     {
-        try {
-            $result = $pdo->query("SELECT 1 FROM {$tableName} LIMIT 1");
-        } catch (\Exception $e) {
-            return false;
-        }
-        return true;
+        $this->relatedTable = $table;
+        $this->foreignPivotKey = "{$this->nameTable}.$foreignPivotKey";
+        $this->relatedPivotKey = "{$table->nameTable}.$relatedPivotKey";
     }
 }

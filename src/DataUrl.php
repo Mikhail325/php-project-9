@@ -7,10 +7,10 @@ use GuzzleHttp\Client;
 
 class DataUrl
 {
-    public static function getData(string $urlName): mixed
+    public static function getData(string $url): mixed
     {
         $client = new Client();
-        $respons = $client->request('GET', $urlName);
+        $respons = $client->request('GET', $url);
         $statusCode = $respons->getStatusCode();
         $body = $respons->getBody()->getContents();
 
