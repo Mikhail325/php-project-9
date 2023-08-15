@@ -31,11 +31,8 @@ class TableRepository
         $this->pdo->exec($sql);
     }
 
-    /**
-     * @param array<string> $valuesColumns
-     * @return array<mixed>
-     */
-    public function get(array $valuesColumns = null, bool $sortId = false, bool $allValue = false): array
+    /** @param array<string> $valuesColumns*/
+    public function get(array $valuesColumns = null, bool $sortId = false, bool $allValue = false): mixed
     {
         if (isset($valuesColumns)) {
             $conditionColumns = array_map(
@@ -56,7 +53,8 @@ class TableRepository
 
         $urlData = $this->pdo->prepare($sql);
         $urlData->execute();
-        return $allValue ? $urlData->fetchAll() : $urlData->fetch();
+        return $urlData = ($allValue) ? $urlData->fetchAll() : $urlData->fetch();
+
     }
 
     /**
