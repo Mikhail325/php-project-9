@@ -53,8 +53,7 @@ class TableRepository
 
         $urlData = $this->pdo->prepare($sql);
         $urlData->execute();
-        return $urlData = ($allValue) ? $urlData->fetchAll() : $urlData->fetch();
-
+        return $allValue ? $urlData->fetchAll() : $urlData->fetch();
     }
 
     /**
