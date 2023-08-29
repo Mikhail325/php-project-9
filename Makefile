@@ -7,3 +7,7 @@ phpstan:
 	vendor/bin/phpstan analyse --level 8 src public
 install:
 	composer install
+build container:
+	docker build -t userName/page-analis .
+run container:	
+	docker run -p 8000:8000 userName/page-analis
