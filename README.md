@@ -40,15 +40,9 @@ export DATABASE_URL=postgresql://janedoe:mypassword@localhost:5432/mydb
 
 ### Инструкции по установке c помощью Docker
 
-Для сборки образа в директории с Dockerfile используйте команду, указанную ниже:
-```
-docker build -t userName/page-analis .
-```
+Для установки зависимостей используйте команду **make build**.
+Для запуска сайта используйте команду **make run**.
 
-### запуска сайта используйте команду:
-```
-docker run -p 8000:8000 userName/page-analis
-```
 ### Проверка работы сайта
 
 Откройте в браузере ссылку **http://localhost:8000** и убедитесь, что сайт открылся.
