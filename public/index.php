@@ -58,7 +58,7 @@ $app->post('/urls', function ($req, $res) use ($router) {
         /** @var array<string> $parsedUrl */
         $parsedUrl = parse_url($url['name']);
         $url = "{$parsedUrl['scheme']}://{$parsedUrl['host']}";
-        
+
         /** @phpstan-ignore-next-line */
         $db = $this->get('db');
         $statement = $db->query("SELECT id FROM urls WHERE name = '$url';");
