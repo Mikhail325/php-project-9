@@ -10,7 +10,6 @@ use Valitron\Validator;
 use Carbon\Carbon;
 use DiDom\Document;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -59,7 +58,8 @@ $app->post('/urls', function ($req, $res) use ($router) {
         /** @var array<string> $parsedUrl */
         $parsedUrl = parse_url($url['name']);
         $url = "{$parsedUrl['scheme']}://{$parsedUrl['host']}";
-
+        
+        /** @phpstan-ignore-next-line */
         $db = $this->get('db');
         $statement = $db->query("SELECT id FROM urls WHERE name = '$url';");
         $isRepet = empty($statement->fetch());//-------------------------
@@ -93,6 +93,7 @@ $app->post('/urls', function ($req, $res) use ($router) {
 });
 
 $app->get('/urls', function ($req, $res) {
+    /** @phpstan-ignore-next-line */
     $db = $this->get('db');
     $statement = $db->query(
         "SELECT urls.name, urls.id, MAX(url_checks.created_at) AS created_at, url_checks.status_code 
@@ -110,6 +111,7 @@ $app->get('/urls', function ($req, $res) {
 
 $app->get('/urls/{id}', function ($req, $res, array $args) {
     $id = $args['id'];
+    /** @phpstan-ignore-next-line */
     $db = $this->get('db');
 
     $statement = $db->query("SELECT * FROM urls WHERE id = $id;");
@@ -130,9 +132,9 @@ $app->get('/urls/{id}', function ($req, $res, array $args) {
     return $this->get('renderer')->render($res, 'urls/show.phtml', $params);
 })->setName('url');
 
-$app->post('/urls/{url_id}/checks', function ($req, $res, array $args) use ($urlsDb, $urlChecksDb, $router) {
+$app->post('/urls/{url_id}/checks', function ($req, $res, array $args) use ($router) {
     $id = $args['url_id'];
-
+    /** @phpstan-ignore-next-line */
     $db = $this->get('db');
 
     $statement = $db->query("SELECT name FROM urls WHERE id = $id;");
@@ -144,14 +146,12 @@ $app->post('/urls/{url_id}/checks', function ($req, $res, array $args) use ($url
 
     try {
         $client = new Client();
-        var_dump(11111);
         $respons = $client->request('GET', $urlName);
         $statusCode = $respons->getStatusCode();
 
         /** @phpstan-ignore-next-line */
         $this->get('flash')->addMessage('success', 'Страница успешно проверена');
     } catch (Exception $e) {
-        var_dump(22222);
         /** @phpstan-ignore-next-line */
         $this->get('flash')->addMessage('error', 'Ошибка при проверке страницы');
 
