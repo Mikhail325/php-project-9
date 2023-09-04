@@ -8,6 +8,6 @@ phpstan:
 install:
 	composer install
 build:
-	docker build -t userName/page-analis .
+	docker build -t user_name/page-analis .
 run:	
-	docker run -p 8000:8000 userName/page-analis
+	docker run -p 8000:8000 user_name/page-analis
