@@ -5,7 +5,7 @@ use Slim\Views\PhpRenderer;
 use Slim\Flash\Messages;
 use DI\Container;
 use Hexlet\Code\Connection;
-use Hexlet\Code\DdRepository;
+use Hexlet\Code\Migration;
 use Valitron\Validator;
 use Carbon\Carbon;
 use DiDom\Document;
@@ -34,7 +34,7 @@ $app->addErrorMiddleware(true, true, true);
 
 $router = $app->getRouteCollector()->getRouteParser();
 
-DdRepository::createTable($container->get('db'));
+Migration::migrate($container->get('db'));
 
 $app->get('/', function ($req, $res) {
     $params = [
@@ -62,9 +62,9 @@ $app->post('/urls', function ($req, $res) use ($router) {
         /** @phpstan-ignore-next-line */
         $db = $this->get('db');
         $statement = $db->query("SELECT id FROM urls WHERE name = '$url';");
-        $isRepet = empty($statement->fetch());//-------------------------
+        $isRepeated = empty($statement->fetch());
 
-        if (!$isRepet) {
+        if (!$isRepeated) {
             /** @phpstan-ignore-next-line */
             $this->get('flash')->addMessage('success', 'Страница уже существует');
         } else {
@@ -72,8 +72,8 @@ $app->post('/urls', function ($req, $res) use ($router) {
             $this->get('flash')->addMessage('success', 'Страница успешно добавлена');
 
             $sql = 'INSERT INTO urls (name, created_at) VALUES (:name, :created_at)';
-            $sqlReqvest = $db->prepare($sql);
-            $sqlReqvest->execute([
+            $sqlRequest = $db->prepare($sql);
+            $sqlRequest->execute([
                 'name' => $url,
                 'created_at' => Carbon::now()
             ]);
@@ -118,14 +118,14 @@ $app->get('/urls/{id}', function ($req, $res, array $args) {
     $url = $statement->fetch();
 
     $statement = $db->query("SELECT * FROM url_checks WHERE url_id = $id ORDER BY id DESC;");
-    $dataChecks = $statement->fetchAll();
+    $urlChecks = $statement->fetchAll();
 
     /** @phpstan-ignore-next-line */
     $messages = $this->get('flash')->getMessages();
     $params = [
         'url' => $url,
         'flash' => $messages,
-        'checks' => $dataChecks
+        'checks' => $urlChecks
     ];
 
     /** @phpstan-ignore-next-line */
@@ -142,12 +142,12 @@ $app->post('/urls/{url_id}/checks', function ($req, $res, array $args) use ($rou
 
     $sql = "INSERT INTO url_checks (url_id, status_code, h1, title, description, created_at) 
             VALUES (:url_id, :status_code, :h1, :title, :description, :created_at)";
-    $sqlReqvest = $db->prepare($sql);
+    $sqlRequest = $db->prepare($sql);
 
     try {
         $client = new Client();
-        $respons = $client->request('GET', $urlName);
-        $statusCode = $respons->getStatusCode();
+        $response = $client->request('GET', $urlName);
+        $statusCode = $response->getStatusCode();
 
         /** @phpstan-ignore-next-line */
         $this->get('flash')->addMessage('success', 'Страница успешно проверена');
@@ -155,10 +155,10 @@ $app->post('/urls/{url_id}/checks', function ($req, $res, array $args) use ($rou
         /** @phpstan-ignore-next-line */
         $this->get('flash')->addMessage('error', 'Ошибка при проверке страницы');
 
-        $urlRout = $router->urlFor('url', ['id' => $id]);
-        return $res->withRedirect($urlRout);
+        $urlRoute = $router->urlFor('url', ['id' => $id]);
+        return $res->withRedirect($urlRoute);
     }
-    $body = $respons->getBody()->getContents();
+    $body = $response->getBody()->getContents();
 
         /** @var Document $document */
         $document = new Document($body);
@@ -168,7 +168,7 @@ $app->post('/urls/{url_id}/checks', function ($req, $res, array $args) use ($rou
             optional($document->find('meta[name=description]')[0])
             ->attr('content') : null;
 
-        $sqlReqvest->execute([
+        $sqlRequest->execute([
             'description' => $description,
             'title' => $title,
             'h1' => $h1,
@@ -177,8 +177,8 @@ $app->post('/urls/{url_id}/checks', function ($req, $res, array $args) use ($rou
             'created_at' => Carbon::now()
         ]);
 
-    $urlRout = $router->urlFor('url', ['id' => $id]);
-    return $res->withRedirect($urlRout);
+    $urlRoute = $router->urlFor('url', ['id' => $id]);
+    return $res->withRedirect($urlRoute);
 });
 
 $app->run();

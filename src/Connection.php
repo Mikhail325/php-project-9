@@ -2,24 +2,19 @@
 
 namespace Hexlet\Code;
 
+use Illuminate\Support\Arr;
+
 final class Connection
 {
-    public static function connect(): \PDO
+    public static function connect()
     {
-        if (isset($_ENV['DATABASE_URL'])) {
-            /** @var  array{user: string, pass: string, host: string, port: string, path: string} $databaseUrl */
-            $databaseUrl = parse_url($_ENV['DATABASE_URL']);
-        } else {
-            /** @var  array{user: string, pass: string, host: string, port: string, path: string} $databaseUrl */
-            $databaseUrl = parse_ini_file('database.ini');
-        }
-        $username = $databaseUrl['user'];//
-        $password = $databaseUrl['pass'];
-        $host = $databaseUrl['host'];
-        $dbname = ltrim($databaseUrl['path'], '/');//
-
-        $conStr = "pgsql:host=$host;dbname=$dbname";
-        $pdo = new \PDO($conStr, $username, $password);
+        $conn = parse_url(getenv('DATABASE_URL'));
+        $dbName = ltrim(Arr::get($conn, 'path', 'project-48'), '/');
+        $host = Arr::get($conn, 'host', 'localhost');
+        $userName = Arr::get($conn, 'user', 'postgres');
+        $password = Arr::get($conn, 'pass', '3155810a');
+        $conStr = "pgsql:host=$host;dbname=$dbName";
+        $pdo = new \PDO($conStr, $userName, $password);
         return $pdo;
     }
 }
