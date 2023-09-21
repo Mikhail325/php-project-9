@@ -40,7 +40,6 @@ $app->get('/', function ($req, $res) {
     $params = [
         'errors' => []
     ];
-    /** @phpstan-ignore-next-line */
     return $this->get('renderer')->render($res, 'index.phtml', $params);
 })->setName('main');
 
@@ -59,24 +58,21 @@ $app->post('/urls', function ($req, $res) use ($router) {
         $parsedUrl = parse_url($url['name']);
         $url = "{$parsedUrl['scheme']}://{$parsedUrl['host']}";
 
-        /** @phpstan-ignore-next-line */
         $db = $this->get('db');
         $statement = $db->query("SELECT id FROM urls WHERE name = '$url';");
         $isRepeated = empty($statement->fetch());
 
         if (!$isRepeated) {
-            /** @phpstan-ignore-next-line */
             $this->get('flash')->addMessage('success', 'Страница уже существует');
         } else {
-            /** @phpstan-ignore-next-line */
-            $this->get('flash')->addMessage('success', 'Страница успешно добавлена');
-
             $sql = 'INSERT INTO urls (name, created_at) VALUES (:name, :created_at)';
             $sqlRequest = $db->prepare($sql);
             $sqlRequest->execute([
                 'name' => $url,
                 'created_at' => Carbon::now()
             ]);
+
+            $this->get('flash')->addMessage('success', 'Страница успешно добавлена');
         }
 
         $id = $db->query("SELECT id FROM urls WHERE name = '$url';");
@@ -88,12 +84,10 @@ $app->post('/urls', function ($req, $res) use ($router) {
     $params = [
         'errors' => $url['name']
     ];
-    /** @phpstan-ignore-next-line */
     return $this->get('renderer')->render($res->withStatus(422), 'index.phtml', $params);
 });
 
 $app->get('/urls', function ($req, $res) {
-    /** @phpstan-ignore-next-line */
     $db = $this->get('db');
     $statement = $db->query(
         "SELECT urls.name, urls.id, MAX(url_checks.created_at) AS created_at, url_checks.status_code 
@@ -105,13 +99,11 @@ $app->get('/urls', function ($req, $res) {
     $params = [
         'urls' => $statement->fetchAll()
     ];
-    /** @phpstan-ignore-next-line */
     return $this->get('renderer')->render($res, 'urls/index.phtml', $params);
 })->setName('urls');
 
 $app->get('/urls/{id}', function ($req, $res, array $args) {
     $id = $args['id'];
-    /** @phpstan-ignore-next-line */
     $db = $this->get('db');
 
     $statement = $db->query("SELECT * FROM urls WHERE id = $id;");
@@ -120,7 +112,6 @@ $app->get('/urls/{id}', function ($req, $res, array $args) {
     $statement = $db->query("SELECT * FROM url_checks WHERE url_id = $id ORDER BY id DESC;");
     $urlChecks = $statement->fetchAll();
 
-    /** @phpstan-ignore-next-line */
     $messages = $this->get('flash')->getMessages();
     $params = [
         'url' => $url,
@@ -128,13 +119,11 @@ $app->get('/urls/{id}', function ($req, $res, array $args) {
         'checks' => $urlChecks
     ];
 
-    /** @phpstan-ignore-next-line */
     return $this->get('renderer')->render($res, 'urls/show.phtml', $params);
 })->setName('url');
 
 $app->post('/urls/{url_id}/checks', function ($req, $res, array $args) use ($router) {
     $id = $args['url_id'];
-    /** @phpstan-ignore-next-line */
     $db = $this->get('db');
 
     $statement = $db->query("SELECT name FROM urls WHERE id = $id;");
@@ -149,33 +138,31 @@ $app->post('/urls/{url_id}/checks', function ($req, $res, array $args) use ($rou
         $response = $client->request('GET', $urlName);
         $statusCode = $response->getStatusCode();
 
-        /** @phpstan-ignore-next-line */
         $this->get('flash')->addMessage('success', 'Страница успешно проверена');
     } catch (Exception $e) {
-        /** @phpstan-ignore-next-line */
         $this->get('flash')->addMessage('error', 'Ошибка при проверке страницы');
 
         $urlRoute = $router->urlFor('url', ['id' => $id]);
         return $res->withRedirect($urlRoute);
     }
-    $body = $response->getBody()->getContents();
+    $contents = $response->getBody()->getContents();
 
-        /** @var Document $document */
-        $document = new Document($body);
-        $h1 = $document->has('h1') ? optional($document->find('h1')[0])->text() : null;
-        $title = $document->has('title') ? optional($document->find('title')[0])->text() : null;
-        $description = $document->has('meta[name=description]') ?
-            optional($document->find('meta[name=description]')[0])
-            ->attr('content') : null;
+    /** @var Document $document */
+    $document = new Document($contents);
+    $h1 = $document->has('h1') ? optional($document->find('h1')[0])->text() : null;
+    $title = $document->has('title') ? optional($document->find('title')[0])->text() : null;
+    $description = $document->has('meta[name=description]') ?
+        optional($document->find('meta[name=description]')[0])
+        ->attr('content') : null;
 
-        $sqlRequest->execute([
-            'description' => $description,
-            'title' => $title,
-            'h1' => $h1,
-            'url_id' => $id,
-            'status_code' => $statusCode,
-            'created_at' => Carbon::now()
-        ]);
+    $sqlRequest->execute([
+        'description' => $description,
+        'title' => $title,
+        'h1' => $h1,
+        'url_id' => $id,
+        'status_code' => $statusCode,
+        'created_at' => Carbon::now()
+    ]);
 
     $urlRoute = $router->urlFor('url', ['id' => $id]);
     return $res->withRedirect($urlRoute);

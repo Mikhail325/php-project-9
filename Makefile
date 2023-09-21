@@ -4,7 +4,7 @@ start:
 lint:
 	composer exec --verbose phpcs -- --standard=PSR12 src public
 phpstan:
-	vendor/bin/phpstan analyse --level 8 src public
+	vendor/bin/phpstan analyse -c phpstan.neon
 install:
 	composer install
 build:

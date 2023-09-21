@@ -8,9 +8,8 @@ final class Connection
 {
     public static function connect(): \PDO
     {
-        /** @var array{user: string, pass: string, host: string, port: string, path: string} $conn */
-        /** @phpstan-ignore-next-line */
-        $conn = parse_url(getenv('DATABASE_URL'));
+        $url = (string) getenv('DATABASE_URL');
+        $conn = parse_url($url);
         $dbName = ltrim(Arr::get($conn, 'path', 'project-48'), '/');
         $host = Arr::get($conn, 'host', 'localhost');
         $userName = Arr::get($conn, 'user', 'postgres');
