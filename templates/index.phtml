@@ -29,8 +29,8 @@
                <p class="lead">Бесплатно проверяйте сайты на SEO пригодность</p>
                <form action=<?= $router->urlFor('setUrl') ?> method="post" class="row">
                   <div class="col-8">
-                     <?php if (!empty($errors)): ?>
-                        <input type="text" name="url[name]" class="form-control form-control-lg is-invalid" placeholder="https://www.example.com" value="<?= htmlspecialchars($errors) ?>">
+                     <?php if ($errors): ?>
+                        <input type="text" name="url[name]" class="form-control form-control-lg is-invalid" placeholder="https://www.example.com" value="<?= htmlspecialchars($url) ?>">
                         <div class="invalid-feedback">Некорректный URL</div>
                      <?php else: ?>
                         <input type="text" name="url[name]" class="form-control form-control-lg" placeholder="https://www.example.com">

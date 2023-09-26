@@ -83,8 +83,11 @@ $app->post('/urls', function ($req, $res) use ($router) {
     }
 
     $params = [
-        'errors' => $url['name']
+        'errors' => true,
+        'router' => $router,
+        'url' => $url['name']
     ];
+
     return $this->get('renderer')->render($res->withStatus(422), 'index.phtml', $params);
 })->setName('setUrl');
 
