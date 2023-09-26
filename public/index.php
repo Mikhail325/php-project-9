@@ -36,9 +36,10 @@ $router = $app->getRouteCollector()->getRouteParser();
 
 Migration::migrate($container->get('db'));
 
-$app->get('/', function ($req, $res) {
+$app->get('/', function ($req, $res) use ($router) {
     $params = [
-        'errors' => []
+        'errors' => [],
+        'router' => $router
     ];
     return $this->get('renderer')->render($res, 'index.phtml', $params);
 })->setName('main');
@@ -85,9 +86,9 @@ $app->post('/urls', function ($req, $res) use ($router) {
         'errors' => $url['name']
     ];
     return $this->get('renderer')->render($res->withStatus(422), 'index.phtml', $params);
-});
+})->setName('setUrl');
 
-$app->get('/urls', function ($req, $res) {
+$app->get('/urls', function ($req, $res) use ($router) {
     $db = $this->get('db');
     $statement = $db->query(
         "SELECT urls.name, urls.id, MAX(url_checks.created_at) AS created_at, url_checks.status_code 
@@ -97,12 +98,13 @@ $app->get('/urls', function ($req, $res) {
     );
 
     $params = [
-        'urls' => $statement->fetchAll()
+        'urls' => $statement->fetchAll(),
+        'router' => $router
     ];
     return $this->get('renderer')->render($res, 'urls/index.phtml', $params);
 })->setName('urls');
 
-$app->get('/urls/{id}', function ($req, $res, array $args) {
+$app->get('/urls/{id}', function ($req, $res, array $args) use ($router) {
     $id = $args['id'];
     $db = $this->get('db');
 
@@ -116,7 +118,8 @@ $app->get('/urls/{id}', function ($req, $res, array $args) {
     $params = [
         'url' => $url,
         'flash' => $messages,
-        'checks' => $urlChecks
+        'checks' => $urlChecks,
+        'router' => $router
     ];
 
     return $this->get('renderer')->render($res, 'urls/show.phtml', $params);
@@ -166,6 +169,6 @@ $app->post('/urls/{url_id}/checks', function ($req, $res, array $args) use ($rou
 
     $urlRoute = $router->urlFor('url', ['id' => $id]);
     return $res->withRedirect($urlRoute);
-});
+})->setName('checkUrl');
 
 $app->run();

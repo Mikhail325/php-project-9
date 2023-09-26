@@ -10,13 +10,13 @@
 <body class="min-vh-100 d-flex flex-column">
    <header>
       <nav class="navbar navbar-expand-md navbar-dark bg-dark px-3">
-         <a class="navbar-brand" href="/">Анализатор страниц</a>
+         <a class="navbar-brand" href=<?= $router->urlFor('main') ?>>Анализатор страниц</a>
          <ul class="navbar-nav mr-auto">
             <li class="nav-item active">
-               <a class="nav-link active" href="/">Главное</a>
+               <a class="nav-link active" href=<?= $router->urlFor('main') ?>>Главное</a>
             </li>
             <li class="nav-item">
-               <a class="nav-link" href="/urls">Сайты</a>
+               <a class="nav-link" href=<?= $router->urlFor('urls') ?>>Сайты</a>
             </li>
          </ul>
       </nav>
@@ -27,7 +27,7 @@
             <div class="col-12 col-md-10 col-lg-8 mx-auto border rounded-3 bg-light p-5">
                <h1 class="display-3">Анализатор страниц</h1>
                <p class="lead">Бесплатно проверяйте сайты на SEO пригодность</p>
-               <form action="/urls" method="post" class="row">
+               <form action=<?= $router->urlFor('setUrl') ?> method="post" class="row">
                   <div class="col-8">
                      <?php if (!empty($errors)): ?>
                         <input type="text" name="url[name]" class="form-control form-control-lg is-invalid" placeholder="https://www.example.com" value="<?= htmlspecialchars($errors) ?>">

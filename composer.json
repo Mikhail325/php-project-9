@@ -6,6 +6,7 @@
             "Hexlet\\Code\\": "src/"
         }
     },
+    "license": "MIT",
     "authors": [
         {
             "name": "Mikhail Sukhanov",

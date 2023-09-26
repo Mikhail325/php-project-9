@@ -8,19 +8,17 @@
       <title>Анализатор страниц</title>
    </head>
    <body class="min-vh-100 d-flex flex-column">
-      <header class="flex-shrink-0">
+      <header>
          <nav class="navbar navbar-expand-md navbar-dark bg-dark px-3">
-            <a class="navbar-brand" href="/">Анализатор страниц</a>
-            <div class="collapse navbar-collapse" id="navbarNav">
-               <ul class="navbar-nav mr-auto">
-                  <li class="nav-item">
-                     <a class="nav-link" href="/">Главное</a>
-                  </li>
-                  <li class="nav-item">
-                     <a class="nav-link active" href="/urls">Сайты</a>
-                  </li>
-               </ul>
-            </div>
+            <a class="navbar-brand" href=<?= $router->urlFor('main') ?>>Анализатор страниц</a>
+            <ul class="navbar-nav mr-auto">
+               <li class="nav-item">
+                  <a class="nav-link" href=<?= $router->urlFor('main') ?>>Главное</a>
+               </li>
+               <li class="nav-item">
+                  <a class="nav-link active" href=<?= $router->urlFor('urls') ?>>Сайты</a>
+               </li>
+            </ul>
          </nav>
          <?php if (count($flash) > 0): ?>
                <?php foreach ($flash as $messages) : ?>
@@ -52,7 +50,7 @@
                </table>
             </div>
             <h2 class="mt-5 mb-3">Проверки</h2>
-            <form action="/urls/<?=$url['id']?>/checks" method="post" >
+            <form action=<?= $router->urlFor('checkUrl', ['url_id' => $url['id']]) ?> method="post">
                <input type="submit" class="btn btn-primary" value="Запустить проверку">
             </form>
             <table class="table table-bordered table-hover" data-test="checks">
